@@ -8,7 +8,7 @@ while the basic game is still simple. It has simple mechanics and obstacles
 but the extras could make it even better; like a shop.
 
 ## Needs
--A player sprite with gravity
+- A player sprite with gravity
 - Holding a key makes the player go up and releasing it makes the player fall
 - Obstacles and background move toward the player
 - Collision detection with obstacles
@@ -23,3 +23,6 @@ but the extras could make it even better; like a shop.
 - throw in different kinds of obstacles
 - maybe a potential bossfight while trying to avoid obstacles
 - score: points based on how far you have travelled
+
+## images
+background: https://opengameart.org/content/abandon-city-seamless-background
