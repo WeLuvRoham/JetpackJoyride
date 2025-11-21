@@ -8,8 +8,24 @@
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  let gameStatus = false;
+}
+
+function preload(){
+  character = image()
+  backdrop = image()
 }
 
 function draw() {
   background(220);
+}
+
+class Player { 
+  constructor(x, y, dx, dy){
+    this.x = x;
+    this.y = y;
+    this.dx = 0;
+    this.dy = 0;
+  }
+
 }
