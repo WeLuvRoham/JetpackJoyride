@@ -13,6 +13,7 @@ but the extras could make it even better; like a shop.
 - Obstacles and background move toward the player
 - Collision detection with obstacles
 - Score that increases over distance/time
+- Sound EFX
 
 ## Wants
 - different kind of obstacles, like missiles or lasers

@@ -5,22 +5,25 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-// Matter.js module aliases
-const Engine = Matter.Engine;
-const World = Matter.World;
 
-// Game variables
-let engine;
-let world;
+
+// Matter JS
+var Engine = Matter.Engine,
+    World = Matter.World,
+    Bodies = Matter.Bodies,
+    Render = Matter.Render;
+
+var engine;
+var world;
+var box;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  let gameStatus = false;
-  
-  // Create Matter.js engine and world with gravity
   engine = Engine.create();
   world = engine.world;
-  world.gravity.y = 1;
+  box1 = Bodies.rectangle(400, 200, 80, 80);
+  Engine.run(engine);
+  console.log(box);
 }
 
 function preload(){
@@ -29,21 +32,9 @@ function preload(){
 }
 
 function draw() {
-  background(220);
   
-  // Update physics engine
-  Engine.update(engine);
 }
 
-class Player { 
-  constructor(x, y, dx, dy){
-    this.x = x;
-    this.y = y;
-    this.dx = 0;
-    this.dy = 0;
-  }
-
-}
 
 // function menu(){
 //   if(gameStatus === false && death === false){
@@ -52,9 +43,7 @@ class Player {
 // }
 
 // Get references to the HTML elements
-const startMenu = document.getElementById('startMenu');
-const gameContainer = document.getElementById('game');
-const startButton = document.getElementById('startButton');
+
 
 // Function to start the game
 function startGame() {
@@ -67,10 +56,11 @@ function startGame() {
     // For example:
     // initGame();
     // gameLoop();
+
 }
 
 // Add an event listener to the start button
-startButton.addEventListener('click', startGame);
+
 
 // (Optional) If you have a function to initialize the game,
 // you might call it within startGame()
