@@ -45,8 +45,41 @@ class Player {
 
 }
 
-function menu(){
-  if(gameStatus === false && death === false){
+// function menu(){
+//   if(gameStatus === false && death === false){
     
-  }
+//   }
+// }
+
+// Get references to the HTML elements
+const startMenu = document.getElementById('startMenu');
+const gameContainer = document.getElementById('game');
+const startButton = document.getElementById('startButton');
+
+// Function to start the game
+function startGame() {
+    // Hide the start menu
+    startMenu.style.display = 'none';
+    // Show the game container
+    gameContainer.style.display = 'block';
+
+    // Initialize and start your game logic here
+    // For example:
+    // initGame();
+    // gameLoop();
 }
+
+// Add an event listener to the start button
+startButton.addEventListener('click', startGame);
+
+// (Optional) If you have a function to initialize the game,
+// you might call it within startGame()
+// function initGame() {
+//     // Setup game variables, create canvas, etc.
+// }
+
+// (Optional) If you have a game loop, you might call it within startGame()
+// function gameLoop() {
+//     // Update game state, render elements, etc.
+//     // requestAnimationFrame(gameLoop);
+// }
