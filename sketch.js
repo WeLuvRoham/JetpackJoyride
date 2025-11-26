@@ -8,6 +8,11 @@
 
 
 // Matter JS
+let character;
+let backdrop;
+let x = 200;
+let y = height/4;
+
 var Engine = Matter.Engine,
     World = Matter.World,
     Bodies = Matter.Bodies,
@@ -21,9 +26,11 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   engine = Engine.create();
   world = engine.world;
-  box1 = Bodies.rectangle(400, 200, 80, 80);
   Engine.run(engine);
-  console.log(box);
+  player = Bodies.rectangle(x, y, 80, 80);
+  World.add(world, player);
+  console.log(player);
+  console.log(player);
 }
 
 function preload(){
@@ -32,7 +39,7 @@ function preload(){
 }
 
 function draw() {
-  
+  player.show();
 }
 
 
