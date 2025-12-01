@@ -27,7 +27,7 @@ function preload(){
   // Use 'loadImage' in preload. The 'image()' function is used in draw to display an image.
   // You need to provide actual image file paths here.
   // characterImg = loadImage('path/to/your/character.png');
-  // backdropImg = loadImage('path/to/your/background.jpg');
+  backdropImg = loadImage('images/city.png');
   console.log("Assets preloaded (if paths were provided).");
 }
 
@@ -44,15 +44,29 @@ function setup() {
   // We use the variable 'player' instead of 'box' to avoid conflict with p5.js 'box()' function.
   let startX = 200;
   let startY = height / 4; 
-  player = Bodies.rectangle(startX, startY, 80, 80);
+  let groundHeight = 100;
+  ground = Bodies.rectangle(width / 2, height - groundHeight / 2, width, groundHeight, { 
+    isStatic: true,
+    label: 'ground'
+  });
+
+  player = Bodies.rectangle(startX, startY, 80, 140, {
+    isStatic: false, // Allow the body to move
+    density: 0.002, // give mass for gravity effect
+    frictionAir: 0.02, // Simulate some air resistance
+    inertia: Infinity, // Prevent rotation
+    label: 'player'
+  });
   
-  World.add(world, player);
+  
+  World.add(world, [player, ground]);
   console.log("Matter.js player body created and added to world.");
 }
 
 function draw() {
   // Update the background every frame
-  background(220); // Or use backdropImg if you loaded one: image(backdropImg, 0, 0, width, height);
+  image(backdropImg, 0, 0, width, height);
+  Engine.update(engine);
 
   // Use p5 to draw the player based on its Matter.js physics position
   let pos = player.position;
@@ -62,8 +76,9 @@ function draw() {
   translate(pos.x, pos.y);
   rotate(angle);
   rectMode(CENTER);
-  fill(255, 0, 100); // Draw a pink rectangle as a placeholder for your character
-  rect(0, 0, 80, 80);
+  fill(255, 0, 100); 
+  rect(0, 0, 80, 140);
+  
   
   // If you loaded an image in preload():
   // image(characterImg, -40, -40, 80, 80); 
