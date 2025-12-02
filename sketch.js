@@ -12,6 +12,7 @@
 let characterImg; // Renamed from 'character' to avoid conflict with potential character object
 let backdropImg;  // Renamed from 'backdrop'
 let player;       // Renamed from 'box' to avoid conflict with p5.js 'box()' function
+let dx = 0;        // For background scrolling
 
 var Engine = Matter.Engine,
     World = Matter.World,
@@ -65,7 +66,7 @@ function setup() {
 
 function draw() {
   // Update the background every frame
-  image(backdropImg, 0, 0, width, height);
+  image(backdropImg, dx--, 0, width, height);
   Engine.update(engine);
 
   // Use p5 to draw the player based on its Matter.js physics position
