@@ -9,10 +9,15 @@
 
 // Matter JS
 // Define variables globally, but without assigning p5/Matter values yet
+let characterRunning;
 let characterImg; // Renamed from 'character' to avoid conflict with potential character object
 let backdropImg;  // Renamed from 'backdrop'
+
+
+let secondBackdropImg; // For seamless transitions as 'character' moves
 let player;       // Renamed from 'box' to avoid conflict with p5.js 'box()' function
-let dx = 0;        // For background scrolling
+let scrollX = 0;  // Background scroll position
+let scrollSpeed = 2; // Speed of background scroll (pixels per frame)
 
 var Engine = Matter.Engine,
     World = Matter.World,
@@ -28,8 +33,11 @@ function preload(){
   // Use 'loadImage' in preload. The 'image()' function is used in draw to display an image.
   // You need to provide actual image file paths here.
   // characterImg = loadImage('path/to/your/character.png');
-  backdropImg = loadImage('images/city.png');
+  backdropImg = loadImage('images/city.jpg');
+  secondBackdropImg = loadImage('images/secondCity.jpg');
+  characterRunning = loadImage('images/Run.png');
   console.log("Assets preloaded (if paths were provided).");
+
 }
 
 function setup() {
@@ -51,7 +59,7 @@ function setup() {
     label: 'ground'
   });
 
-  player = Bodies.rectangle(startX, startY, 80, 140, {
+  player = Bodies.rectangle(startX, startY, 160, 280, {
     isStatic: false, // Allow the body to move
     density: 0.002, // give mass for gravity effect
     frictionAir: 0.02, // Simulate some air resistance
@@ -65,8 +73,10 @@ function setup() {
 }
 
 function draw() {
-  // Update the background every frame
-  image(backdropImg, dx--, 0, width, height);
+  // Draw infinite scrolling background
+  drawInfiniteBackground();
+  
+  // Update physics
   Engine.update(engine);
 
   // Use p5 to draw the player based on its Matter.js physics position
@@ -78,7 +88,7 @@ function draw() {
   rotate(angle);
   rectMode(CENTER);
   fill(255, 0, 100); 
-  rect(0, 0, 80, 140);
+  rect(0, 0, 160, 280);
   
   
   // If you loaded an image in preload():
@@ -87,40 +97,23 @@ function draw() {
   pop(); // Restore p5 transform context
 }
 
-// Ensure you include all necessary HTML elements in your index.html
-// for the startGame function to work if you uncomment the lines below.
+// Function for infinite scrolling background using two images
+function drawInfiniteBackground() {
+  // Update scroll position each frame
+  scrollX -= scrollSpeed;
+  
+  // Reset scroll when it goes too far (seamless loop)
+  if (scrollX <= -width) {
+    scrollX = 0;
+  }
+  
+  // Draw first image at current position
+  image(backdropImg, scrollX, 0, width, height);
+  
+  // Draw second image to the right outside visible screen
+  image(secondBackdropImg, scrollX + width, 0, width, height);
 
-// // Get references to the HTML elements (These assume elements exist in index.html)
-// const startMenu = document.getElementById('startMenu');
-// const gameContainer = document.getElementById('game');
+  // third image to ensure nothing funny happens
+  image(backdropImg, scrollX + width * 2, 0, width, height);
+}
 
-// // Function to start the game
-// function startGame() {
-//     // Hide the start menu
-//     startMenu.style.display = 'none';
-//     // Show the game container
-//     gameContainer.style.display = 'block';
-// }
-
-
-    // Initialize and start your game logic here
-    // For example:
-    // initGame();
-    // gameLoop();
-
-
-
-// Add an event listener to the start button
-
-
-// (Optional) If you have a function to initialize the game,
-// you might call it within startGame()
-// function initGame() {
-//     // Setup game variables, create canvas, etc.
-// }
-
-// (Optional) If you have a game loop, you might call it within startGame()
-// function gameLoop() {
-//     // Update game state, render elements, etc.
-//     // requestAnimationFrame(gameLoop);
-// }
