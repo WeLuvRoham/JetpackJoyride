@@ -18,6 +18,7 @@ let secondBackdropImg; // For seamless transitions as 'character' moves
 let player;       // Renamed from 'box' to avoid conflict with p5.js 'box()' function
 let scrollX = 0;  // Background scroll position
 let scrollSpeed = 10; // Speed of background scroll (pixels per frame)
+let forceMagnitude = 5; // Magnitude of force applied to the player
 
 var Engine = Matter.Engine,
     World = Matter.World,
@@ -117,8 +118,20 @@ function drawInfiniteBackground() {
   image(backdropImg, scrollX + width * 2, 0, width, height);
 }
 
-if (keyIsPressed(SPACE) || keyIsPressed(87)) {
-  // Apply an upward force to the player body
-  Matter.player.applyForce(player, player.position, { x: 0, y: -500 });
-
+function keyPressed() {
+  if (keyIsDown(32) === true) {
+    console.log("TEST.")
+    // Apply an upward force to the player body
+    Matter.Body.applyForce(
+    player, // The body to apply force to
+    { x: player.position.x, y: player.position.y }, // The point to apply force from (center of mass)
+    { x: 0, y: -forceMagnitude } // The force vector (negative y is up)
+);
+  }
+  
 }
+
+
+
+
+
