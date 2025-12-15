@@ -17,8 +17,8 @@ let backdropImg;  // Renamed from 'backdrop'
 let secondBackdropImg; // For seamless transitions as 'character' moves
 let player;       // Renamed from 'box' to avoid conflict with p5.js 'box()' function
 let scrollX = 0;  // Background scroll position
-let scrollSpeed = 10; // Speed of background scroll (pixels per frame)
-let forceMagnitude = 5; // Magnitude of force applied to the player
+let scrollSpeed = 5; // Speed of background scroll (pixels per frame)
+let forceMagnitude = 0.4; // Magnitude of force applied to the player
 
 var Engine = Matter.Engine,
     World = Matter.World,
@@ -60,6 +60,11 @@ function setup() {
     label: 'ground'
   });
 
+  ceiling = Bodies.rectangle(width / 2, 0, width, groundHeight, { 
+    isStatic: true,
+    label: 'ceiling'
+  });
+
   player = Bodies.rectangle(startX, startY, 160, 280, {
     isStatic: false, // Allow the body to move
     density: 0.002, // give mass for gravity effect
@@ -67,16 +72,22 @@ function setup() {
     inertia: Infinity, // Prevent rotation
     label: 'player'
   });
-  
-  
-  World.add(world, [player, ground]);
+
+  obstacles = Bodies.rectangle(600, height - 150, 50, 150, {
+    isStatic: true,
+    label: 'obstacle'
+
+  });
+
+  World.add(world, [player, ground, ceiling, obstacles]);
   console.log("Matter.js player body created and added to world.");
 }
 
 function draw() {
+  
   // Draw infinite scrolling background
   drawInfiniteBackground();
-  
+  keyPressed();
   // Update physics
   Engine.update(engine);
 
@@ -89,13 +100,14 @@ function draw() {
   rotate(angle);
   rectMode(CENTER);
   fill(255, 0, 100); 
-  rect(0, 0, 160, 280);
+  rect(0, 0, 130, 220);
   
   
   // If you loaded an image in preload():
   // image(characterImg, -40, -40, 80, 80); 
   
   pop(); // Restore p5 transform context
+  
 }
 
 // Function for infinite scrolling background using two images
@@ -120,13 +132,15 @@ function drawInfiniteBackground() {
 
 function keyPressed() {
   if (keyIsDown(32) === true) {
-    console.log("TEST.")
+    let fasterScroll = scrollSpeed + 1;
+    scrollX -= fasterScroll;
     // Apply an upward force to the player body
     Matter.Body.applyForce(
     player, // The body to apply force to
     { x: player.position.x, y: player.position.y }, // The point to apply force from (center of mass)
     { x: 0, y: -forceMagnitude } // The force vector (negative y is up)
 );
+    
   }
   
 }
