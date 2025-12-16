@@ -60,7 +60,7 @@ function setup() {
     label: 'ground'
   });
 
-  ceiling = Bodies.rectangle(width / 2, 0, width, groundHeight, { 
+  ceiling = Bodies.rectangle(width / 2, 0, width, 1, { 
     isStatic: true,
     label: 'ceiling'
   });
@@ -132,7 +132,7 @@ function drawInfiniteBackground() {
 
 function keyPressed() {
   if (keyIsDown(32) === true) {
-    let fasterScroll = scrollSpeed + 1;
+    let fasterScroll = scrollSpeed + forceMagnitude * 10;
     scrollX -= fasterScroll;
     // Apply an upward force to the player body
     Matter.Body.applyForce(
