@@ -1,60 +1,68 @@
-// Project Title
-// Your Name
-// Date
-//
-// Extra for Experts:
-// - describe what you did to take this project "above and beyond"
-
-
+// Jetpack Joyride Game
+// Enhanced with particle effects and sprite animation
 
 // Matter JS
-// Define variables globally, but without assigning p5/Matter values yet
 let characterRunning;
-let characterImg; // Renamed from 'character' to avoid conflict with potential character object
-let backdropImg;  // Renamed from 'backdrop'
+let backdropImg;
+let secondBackdropImg;
+let player;
+let scrollX = 0;
+let scrollSpeed = 5;
+let forceMagnitude = 0.4;
+let jetpackActive = false;
 
+// Animation variables
+let runningFrames = [];
+let currentFrame = 0;
+let frameCounter = 0;
+let frameDelay = 5; // Frames between animation updates
 
-let secondBackdropImg; // For seamless transitions as 'character' moves
-let player;       // Renamed from 'box' to avoid conflict with p5.js 'box()' function
-let scrollX = 0;  // Background scroll position
-let scrollSpeed = 5; // Speed of background scroll (pixels per frame)
-let forceMagnitude = 0.4; // Magnitude of force applied to the player
+// Particle system variables
+let fireParticles = [];
+let maxParticles = 20000;
 
 var Engine = Matter.Engine,
     World = Matter.World,
-    Bodies = Matter.Bodies,
-    Render = Matter.Render;
+    Bodies = Matter.Bodies;
 
 var engine;
 var world;
-// let x = 200; // x and y should ideally be managed by Matter.js body position
-// let y; // y can be set in setup() using 'height'
 
 function preload(){
-  // Use 'loadImage' in preload. The 'image()' function is used in draw to display an image.
-  // You need to provide actual image file paths here.
-  // characterImg = loadImage('path/to/your/character.png');
   backdropImg = loadImage('images/city.jpg');
   secondBackdropImg = loadImage('images/secondCity.jpg');
   characterRunning = loadImage('images/Run.png');
-  console.log("Assets preloaded (if paths were provided).");
-
+  console.log("Assets preloaded");
 }
 
 function setup() {
-  // createCanvas makes 'width' and 'height' variables available globally
   createCanvas(windowWidth, windowHeight);
   
-  // Initialize the Matter.js engine and world
+  // Initialize Matter.js
   engine = Engine.create();
   world = engine.world;
-  Engine.run(engine); // Starts the physics simulation
+  Engine.run(engine);
   
-  // 'height' is now defined. We can create the player body using canvas dimensions.
-  // We use the variable 'player' instead of 'box' to avoid conflict with p5.js 'box()' function.
+  // Setup running animation frames from spritesheet
+  // The running image appears to have 10 frames
+  let spriteWidth = characterRunning.width / 10;
+  let spriteHeight = characterRunning.height;
+  
+  for (let i = 0; i < 10; i++) {
+    let frameImg = createImage(spriteWidth, spriteHeight);
+    frameImg.copy(
+      characterRunning,
+      i * spriteWidth, 0, spriteWidth, spriteHeight,
+      0, 0, spriteWidth, spriteHeight
+    );
+    runningFrames.push(frameImg);
+  }
+  
+  // Create player
   let startX = 200;
-  let startY = height / 4; 
+  let startY = height / 4;
   let groundHeight = 100;
+  
   ground = Bodies.rectangle(width / 2, height - groundHeight / 2, width, groundHeight, { 
     isStatic: true,
     label: 'ground'
@@ -66,86 +74,152 @@ function setup() {
   });
 
   player = Bodies.rectangle(startX, startY, 160, 280, {
-    isStatic: false, // Allow the body to move
-    density: 0.002, // give mass for gravity effect
-    frictionAir: 0.02, // Simulate some air resistance
-    inertia: Infinity, // Prevent rotation
+    isStatic: false,
+    density: 0.002,
+    frictionAir: 0.02,
+    inertia: Infinity,
     label: 'player'
   });
 
   obstacles = Bodies.rectangle(600, height - 150, 50, 150, {
     isStatic: true,
     label: 'obstacle'
-
   });
 
   World.add(world, [player, ground, ceiling, obstacles]);
-  console.log("Matter.js player body created and added to world.");
 }
 
 function draw() {
-  
-  // Draw infinite scrolling background
+  background(200); // Clear background
   drawInfiniteBackground();
-  keyPressed();
+  
   // Update physics
   Engine.update(engine);
-
-  // Use p5 to draw the player based on its Matter.js physics position
-  let pos = player.position;
-  let angle = player.angle;
   
-  push(); // Start p5 transform context
-  translate(pos.x, pos.y);
-  rotate(angle);
-  rectMode(CENTER);
-  fill(255, 0, 100); 
-  rect(0, 0, 130, 220);
+  // Handle input
+  updateJetpack();
   
+  // Update and draw particles
+  updateAndDrawParticles();
   
-  // If you loaded an image in preload():
-  // image(characterImg, -40, -40, 80, 80); 
+  // Draw player
+  drawPlayer();
   
-  pop(); // Restore p5 transform context
-  
+  // Debug info
+  fill(0);
+  textSize(12);
+  text(`Jetpack: ${jetpackActive ? 'ON' : 'OFF'} (SPACE)`, 10, 20);
 }
 
-// Function for infinite scrolling background using two images
 function drawInfiniteBackground() {
-  // Update scroll position each frame
   scrollX -= scrollSpeed;
   
-  // Reset scroll when it goes too far (seamless loop)
   if (scrollX <= -width) {
     scrollX = 0;
   }
   
-  // Draw first image at current position
   image(backdropImg, scrollX, 0, width, height);
-  
-  // Draw second image to the right outside visible screen
-  image(secondBackdropImg, scrollX + width, 0, width, height);
-
-  // third image to ensure nothing funny happens
-  image(backdropImg, scrollX + width * 2, 0, width, height);
+  image(secondBackdropImg, scrollX + width, 0, width, height);//background for smooth trans
+  image(backdropImg, scrollX + width * 2, 0, width, height);//third for safe measure
 }
 
-function keyPressed() {
-  if (keyIsDown(32) === true) {
-    let fasterScroll = scrollSpeed + forceMagnitude * 10;
-    scrollX -= fasterScroll;
-    // Apply an upward force to the player body
-    Matter.Body.applyForce(
-    player, // The body to apply force to
-    { x: player.position.x, y: player.position.y }, // The point to apply force from (center of mass)
-    { x: 0, y: -forceMagnitude } // The force vector (negative y is up)
-);
-    
+function drawPlayer() {
+  let pos = player.position;
+  
+  push();
+  translate(pos.x, pos.y);
+  
+  // draw running animation
+  let frameWidth = runningFrames[0].width;
+  let frameHeight = runningFrames[0].height;
+  
+  // Update Animation frame
+  frameCounter++;
+  if (frameCounter > frameDelay) {
+    currentFrame = (currentFrame + 1) % runningFrames.length;
+    frameCounter = 0;
   }
   
+  // draw the current frame
+  imageMode(CENTER);
+  image(runningFrames[currentFrame], 0, 0, frameWidth, frameHeight);
+  
+  pop();
 }
 
+function updateJetpack() {
+  jetpackActive = keyIsDown(32);
+  
+  if (jetpackActive) {
+    let fasterScroll = scrollSpeed + forceMagnitude * 10;
+    scrollX -= fasterScroll;
+    
+    // Apply upward force
+    Matter.Body.applyForce(
+      player,
+      { x: player.position.x, y: player.position.y },
+      { x: 0, y: -forceMagnitude }
+    );
+    
+    // Create fire particles
+    createFireParticles(player.position.x - 20, player.position.y + 50);
+  }
+}
 
+// ============ PARTICLE SYSTEM ============ (refered to fireworks project but made it way better haha)
 
+function createFireParticles(x, y) {
+  // Create multiple particles per frame for better effect
+  for (let i = 0; i < 3; i++) {
+    if (fireParticles.length < maxParticles) {
+      fireParticles.push({
+        x: x + random(-15, 15),
+        y: y + random(-10, 10),
+        vx: random(-2, 2),
+        vy: random(-4, -1),
+        life: 255,
+        size: random(15, 35),
+        color: random([
+          { r: 255, g: 100, b: 0 },    // orange
+          { r: 255, g: 150, b: 0 },    // light orange
+          { r: 255, g: 200, b: 0 }     // yellow
+        ])
+      });
+    }
+  }
+}
 
+function updateAndDrawParticles() {
+  for (let i = fireParticles.length - 1; i >= 0; i--) {
+    let p = fireParticles[i];
+    
+    // Update physics
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy -= -0.15; // gravity down(might change this later)
+    p.life -= 8;
+    p.size *= 0.97; // Shrink over time
+    
+    // Draw particle
+    noStroke();
+    let c = p.color;
+    fill(c.r, c.g, c.b, p.life);
+    
+    // draw glowing circle with blur effect
+    ellipse(p.x, p.y, p.size);
+    
+    // Draw inner bright core
+    fill(255, 255, 200, p.life * 0.7);
+    ellipse(p.x, p.y, p.size * 0.4);
+    
+    // Remove dead particles
+    if (p.life <= 0) {
+      fireParticles.splice(i, 1);
+    }
+  }
+}
 
+// for resizing the window(makes life easier)
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
