@@ -44,7 +44,6 @@ function setup() {
   Engine.run(engine);
   
   // Setup running animation frames from spritesheet
-  // The running image appears to have 10 frames
   let spriteWidth = characterRunning.width / 10;
   let spriteHeight = characterRunning.height;
   
@@ -59,9 +58,9 @@ function setup() {
   }
   
   // Create player
-  let startX = 200;
-  let startY = height / 4;
   let groundHeight = 100;
+  let startX = 200;
+  let startY = height-groundHeight;
   
   ground = Bodies.rectangle(width / 2, height - groundHeight / 2, width, groundHeight, { 
     isStatic: true,
