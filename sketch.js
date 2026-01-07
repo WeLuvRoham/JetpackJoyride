@@ -2,6 +2,9 @@
 // Enhanced with particle effects and sprite animation
 
 // Matter JS
+let ranHeight = Math.floor(Math.random() * 300) + 100;
+let ranWidth = Math.floor(Math.random() * 500) + 800;
+let obstacles = [];
 let characterRunning;
 let backdropImg;
 let secondBackdropImg;
@@ -80,15 +83,18 @@ function setup() {
     label: 'player'
   });
 
-  obstacles = Bodies.rectangle(600, height - 150, 50, 150, {
+  obstacle = Bodies.rectangle(width + ranWidth, height - ranHeight, 50, 150, {
     isStatic: true,
     label: 'obstacle'
   });
 
-  World.add(world, [player, ground, ceiling, obstacles]);
+  World.add(world, [player, ground, ceiling, obstacle]);
 }
 
 function draw() {
+  // values for obstacle(s)
+  randomValues();
+
   background(200); // Clear background
   drawInfiniteBackground();
   
@@ -103,6 +109,9 @@ function draw() {
   
   // Draw player
   drawPlayer();
+
+  // Draw obstacle
+  drawObstacle(obstacle);
   
   // Debug info
   fill(0);
@@ -110,16 +119,43 @@ function draw() {
   text(`Jetpack: ${jetpackActive ? 'ON' : 'OFF'} (SPACE)`, 10, 20);
 }
 
+function randomValues() {
+  ranHeight = Math.floor(Math.random() * 300) + 100;
+  ranWidth = Math.floor(Math.random() * 500) + 800;
+}
+
 function drawInfiniteBackground() {
   scrollX -= scrollSpeed;
-  
+  if (player.position.y > 100 + 280) {
+    let fasterScroll = scrollSpeed + forceMagnitude * 10;
+    scrollX -= fasterScroll;
+  }
   if (scrollX <= -width) {
     scrollX = 0;
   }
   
   image(backdropImg, scrollX, 0, width, height);
-  image(secondBackdropImg, scrollX + width, 0, width, height);//background for smooth trans
+  image(secondBackdropImg, scrollX + width, 0, width, height);//another background for smooth trans
   image(backdropImg, scrollX + width * 2, 0, width, height);//third for safe measure
+}
+
+function drawObstacle(obstacle) {
+  let pos = obstacle.position;
+  obstacles.push(obstacle);
+  push();
+  translate(pos.x, pos.y);
+  fill(150, 0, 0);
+  rectMode(CENTER);
+  rect(0, 0, ranWidth, ranHeight);
+  pop();
+}
+
+function removeObstacle(obstacle) {
+  if (obstacle.position.x < -100) {
+    obstacles.shift();
+    World.remove(world, obstacle);
+  }
+  
 }
 
 function drawPlayer() {
