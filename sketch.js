@@ -70,7 +70,7 @@ function setup() {
     label: 'ground'
   });
 
-  ceiling = Bodies.rectangle(width / 2, 0, width, 1, { 
+  ceiling = Bodies.rectangle(width/2, -100, width, 20, { 
     isStatic: true,
     label: 'ceiling'
   });
@@ -78,7 +78,7 @@ function setup() {
   player = Bodies.rectangle(startX, startY, 160, 280, {
     isStatic: false,
     density: 0.002,
-    frictionAir: 0.02,
+    frictionAir: 0.002,
     inertia: Infinity,
     label: 'player'
   });
@@ -126,7 +126,7 @@ function randomValues() {
 
 function drawInfiniteBackground() {
   scrollX -= scrollSpeed;
-  if (player.position.y > 100 + 280) {
+  if (!(player.position.y > height - 280)) {
     let fasterScroll = scrollSpeed + forceMagnitude * 10;
     scrollX -= fasterScroll;
   }
