@@ -32,8 +32,8 @@ var engine;
 var world;
 
 function preload(){
-  backdropImg = loadImage('images/city.jpg');
-  secondBackdropImg = loadImage('images/secondCity.jpg');
+  backdropImg = loadImage('images/newBackground.png');
+  secondBackdropImg = loadImage('images/newBackground copy.png');
   characterRunning = loadImage('images/Run.png');
   console.log("Assets preloaded");
 }
@@ -61,7 +61,7 @@ function setup() {
   }
   
   // Create player
-  let groundHeight = 100;
+  let groundHeight = 6;
   let startX = 200;
   let startY = height-groundHeight;
   
@@ -126,7 +126,7 @@ function randomValues() {
 
 function drawInfiniteBackground() {
   scrollX -= scrollSpeed;
-  if (!(player.position.y > height - 280)) {
+  if (!(player.position.y > height - 200)) {
     let fasterScroll = scrollSpeed + forceMagnitude * 10;
     scrollX -= fasterScroll;
   }
@@ -204,55 +204,59 @@ function updateJetpack() {
 // ============ PARTICLE SYSTEM ============ (refered to fireworks project but made it way better haha)
 
 function createFireParticles(x, y) {
-  // Create multiple particles per frame for better effect
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 5; i++) { // density of particles
     if (fireParticles.length < maxParticles) {
       fireParticles.push({
-        x: x + random(-15, 15),
-        y: y + random(-10, 10),
-        vx: random(-2, 2),
-        vy: random(-4, -1),
+        x: x + random(-10, 10),
+        y: y,
+        vx: random(-1, 1),
+        vy: random(1,1),
         life: 255,
-        size: random(15, 35),
-        color: random([
-          { r: 255, g: 100, b: 0 },    // orange
-          { r: 255, g: 150, b: 0 },    // light orange
-          { r: 255, g: 200, b: 0 }     // yellow
-        ])
+        maxLife: 255,
+        size: random(20, 40)
       });
     }
   }
 }
 
+
 function updateAndDrawParticles() {
+  // Use additive blending for a glowing "heat" effect
+  blendMode(ADD); 
+  
   for (let i = fireParticles.length - 1; i >= 0; i--) {
     let p = fireParticles[i];
     
-    // Update physics
-    p.x += p.vx;
+    // 1. Update Physics
+    p.x += p.vx + sin(frameCount * 0.1) * 0.5; // Add a slight flicker/wind
     p.y += p.vy;
-    p.vy -= -0.15; // gravity down(might change this later)
-    p.life -= 8;
-    p.size *= 0.97; // Shrink over time
+    p.vy *= 1.02; // Accelerate upward (buoyancy)
+    p.life -= 7;
+    p.size *= 0.96; // Shrink as it cools
     
-    // Draw particle
+    // 2. Calculate Dynamic Fire Color
+    let lifePct = p.life / p.maxLife;
+    let r = 255;
+    let g = pow(lifePct, 1.5) * 200; // Green fades faster than red
+    let b = pow(lifePct, 3) * 50;    // Blue disappears almost immediately
+    
+    // 3. draw Particle
     noStroke();
-    let c = p.color;
-    fill(c.r, c.g, c.b, p.life);
+    fill(r, g, b, p.life);
+    circle(p.x, p.y, p.size);
     
-    // draw glowing circle with blur effect
-    ellipse(p.x, p.y, p.size);
-    
-    // Draw inner bright core
-    fill(255, 255, 200, p.life * 0.7);
-    ellipse(p.x, p.y, p.size * 0.4);
-    
-    // Remove dead particles
-    if (p.life <= 0) {
-      fireParticles.splice(i, 1);
+    // Draw a small bright core
+    if (lifePct > 0.6) {
+      fill(255, 255, 200, p.life * 0.5);
+      circle(p.x, p.y, p.size * 0.5);
     }
+    
+    if (p.life <= 0) fireParticles.splice(i, 1);
   }
+  
+  blendMode(BLEND); // Reset blend mode for other UI elements
 }
+
 
 // for resizing the window(makes life easier)
 function windowResized() {
